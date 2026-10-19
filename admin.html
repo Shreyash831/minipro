@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescue Eye | Admin Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .admin-nav { background: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .admin-nav h1 { margin: 0; font-size: 1.25rem; color: #ef4444; display: flex; align-items: center; gap: 10px; }
+        .admin-main { flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .kpi-card { background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; text-align: center; }
+        .kpi-card h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; }
+        .kpi-card p { margin: 0; font-size: 2rem; font-weight: 700; color: #f8fafc; }
+        
+        /* Login Screen Overlay */
+        #loginOverlay { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: #1e293b; padding: 40px; border-radius: 8px; border: 1px solid #334155; width: 100%; max-width: 400px; }
+        .login-box h2 { text-align: center; margin-top: 0; color: #ef4444; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #94a3b8; }
+        .form-control { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 4px; box-sizing: border-box; }
+        .btn-primary { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-primary:hover { background: #2563eb; }
+
+        /* Tables */
+        .table-container { background: #1e293b; border-radius: 8px; border: 1px solid #334155; padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>RESCUE EYE<br><span style="font-size: 1rem; color: #f8fafc;">ADMIN COMMAND CENTER</span></h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" class="form-control" required value="admin@rescueeye.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required value="admin123">
+                </div>
+                <button type="submit" class="btn-primary">SIGN IN</button>
+                <p id="loginError" style="color: #ef4444; text-align: center; display: none; margin-top: 15px; font-size: 14px;">Invalid credentials.</p>
+            </form>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            RESCUE EYE ADMIN
+        </h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div> OPERATIONAL
+            </span>
+            <span style="color: #94a3b8;">Admin | <a href="#" id="btnLogout" style="color: #ef4444; text-decoration: none;">Logout</a></span>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+        <div class="kpi-grid">
+            <div class="kpi-card"><h3>Registered Users</h3><p id="kpiUsers">0</p></div>
+            <div class="kpi-card"><h3>Online Now</h3><p id="kpiOnline">0</p></div>
+            <div class="kpi-card"><h3>Active Incidents</h3><p id="kpiIncidents">0</p></div>
+            <div class="kpi-card"><h3>Emergency SOS</h3><p id="kpiSos">0</p></div>
+            <div class="kpi-card"><h3>Rescue Missions</h3><p id="kpiMissions">0</p></div>
+        </div>
+
+        <div class="table-container">
+            <h3 style="margin-top: 0;">Live Disaster Situation (Incidents)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Incident ID</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="incidentsTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-container">
+            <h3 style="margin-top: 0;">SOS Management</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SOS ID</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Assigned Team</th>
+                    </tr>
+                </thead>
+                <tbody id="sosTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="/admin.js"></script>
+</body>
+</html>
